@@ -1,8 +1,45 @@
 # What is ~~RxSwift~~ ~~Combine~~ Reactive Programming?
 
-## Some history 
+## What is Reactive Programming
 
-https://subscription.packtpub.com/book/application_development/9781787120426/1/01lvl1sec7/a-brief-history-of-reactivex-and-rxjava
+There are a lot of articles about Reactive Programming and different implementations on the internet. However, most of them about practical usage and only few about what is this reactive programming and how does it actually work. For my personal opionion more important to understand how this frameworks work deep inside (spoiler: nothing complicated in there actually), rather than start to use an enumerous number of traits and operators without any understanding what is really going on there.
+
+So, what is Reactive programming?
+
+According to Wikipedia:
+
+```
+Reactive programming is a declarative programming paradigm concerned with data streams and the propagation of change. With this paradigm it is possible to express static (e.g., arrays) or dynamic (e.g., event emitters) data streams with ease, and also communicate that an inferred dependency within the associated execution model exists, which facilitates the automatic propagation of the changed data flow.
+```
+
+Excuse me, WHAT?
+
+![jackie](images/jackie_what.jpg)  
+
+Ok, let's start from the begining.
+
+Reactive programming is an idea from the late 90s that inspired Erik Meijer, a computer scientist at Microsoft, to design and develop the Microsoft Rx library.
+
+I don't want to make one defenition of what reactive programming is. I would go to the same complicated definition from wikipedia. Better to compare imperative and reactive approaches.
+
+With imperative approach developer can expect that the code instructions will execute incrimentally, one by one, one at a time, in order as you have  writtem them.
+
+With reactive approach you simply don't think about it. You think about how your system `react` on the new information
+
+Reactive programming is a paradigm that provides an easy way to create asynchronous, event-driven programs. It helps developers who use to use an imperative pull approach, it's when we make a call of something and then wayting for the result, transfer to push approach where we don't wait for the result, we `react` on the result. In simple words our system always ready to handle new information and technicaly doesn't even bother by order of calls in programm.
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 It extends the observer pattern to support sequences of data and/or events and adds operators that allow you to compose sequences together declaratively while abstracting away concerns about things like low-level threading, synchronization, thread-safety, concurrent data structures, and non-blocking I/O.
 
@@ -14,8 +51,6 @@ An advantage of this approach is that when you have a bunch of tasks that are no
 There are many terms used to describe this model of asynchronous programming and design. This document will use the following terms: An observer subscribes to an Observable. An Observable emits items or sends notifications to its observers by calling the observers’ methods.
 
 In other documents and other contexts, what we are calling an “observer” is sometimes called a “subscriber,” “watcher,” or “reactor.” This model in general is often referred to as the “reactor pattern”.
-
-Went from pull to push logic. We just react on what is going on.
 
 Way to stop to think about threads and strart to think about sequences.
 
@@ -45,7 +80,7 @@ the ability for the producer to signal to the consumer that an error has occurre
 With these additions, ReactiveX harmonizes the Iterable and Observable types. The only difference between them is the direction in which the data flows. This is very important because now any operation you can perform on an Iterable, you can also perform on an Observable.
 
 
-much more declarative way of doing thing. you don't expect anything, after your code was executed. You just react on changes in your system
+much more declarative way of doing things. you don't expect anything after your code was executed. You just react on changes in your system
 
 Since we manipulate with collections, we could treat them as simple arrays.
 
@@ -55,8 +90,6 @@ https://github.com/ReactiveX/RxSwift/blob/master/Documentation/MathBehindRx.md
 
 According to wikipedia:
 Reactive programming is a programming paradigm oriented around data flows and the propagation of change. This means that it should be possible to express static or dynamic data flows with ease in the programming languages used, and that the underlying execution model will automatically propagate changes through the data flow.
-
-In computing, reactive programming is a declarative programming paradigm concerned with data streams and the propagation of change. With this paradigm it is possible to express static (e.g., arrays) or dynamic (e.g., event emitters) data streams with ease, and also communicate that an inferred dependency within the associated execution model exists, which facilitates the automatic propagation of the changed data flow.[citation needed]
 
 RX = OBSERVABLE + OBSERVER + SCHEDULERS
 We are going to discuss these points in detail one by one.
@@ -68,6 +101,9 @@ If you’re familiar with RxSwift you’ll notice that Publishers are basically 
 
 
 ADD image that everything is sequence
+
+
+People Are Afraid of usign reactive approaches like RxSwift.
 
 ## Where is it come from
 
