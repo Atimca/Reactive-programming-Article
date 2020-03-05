@@ -2,7 +2,7 @@
 
 ## What is Reactive Programming
 
-There are a lot of articles about Reactive Programming and different implementations on the internet. However, most of them about practical usage and only few about what is this reactive programming and how does it actually work. For my personal opionion more important to understand how this frameworks work deep inside (spoiler: nothing complicated in there actually), rather than start to use an enumerous number of traits and operators without any understanding what is really going on there.
+There are a lot of articles about Reactive Programming and different implementations on the internet. However, most of them about practical usage and only few about what is this reactive programming and how does it actually work. For my personal opionion it is more important to understand how this frameworks work deep inside (spoiler: nothing complicated in there actually), rather than start to use an enumerous number of traits and operators meanwhile shoting in your leg.
 
 So, what is Reactive programming?
 
@@ -18,7 +18,7 @@ Excuse me, WHAT?
 
 Ok, let's start from the begining.
 
-Reactive programming is an idea from the late 90s that inspired Erik Meijer, a computer scientist at Microsoft, to design and develop the Microsoft Rx library.
+Reactive programming is an idea from the late 90s that inspired Erik Meijer, a computer scientist at Microsoft, to design and develop the Microsoft Rx library, but what is it exactly?
 
 I don't want to make one defenition of what reactive programming is. I would go to the same complicated definition from wikipedia. Better to compare imperative and reactive approaches.
 
@@ -26,7 +26,14 @@ With imperative approach developer can expect that the code instructions will ex
 
 With reactive approach you simply don't think about it. You think about how your system `react` on the new information
 
-Reactive programming is a paradigm that provides an easy way to create asynchronous, event-driven programs. It helps developers who use to use an imperative pull approach, it's when we make a call of something and then wayting for the result, transfer to push approach where we don't wait for the result, we `react` on the result. In simple words our system always ready to handle new information and technicaly doesn't even bother by order of calls in programm.
+Reactive programming is a paradigm that provides an easy way to create asynchronous, event-driven programs. It helps developers who use to use an imperative pull approach, it's when we make a call of something and then wayting for the result, transfer to push approach where we don't wait for the result, we `react` on the result. In simple words our system always ready to handle new information and technicaly doesn't even bother by order of calls in program.
+
+It's important to understand that reactive aproach is not just a way to handle asyncronus code. While usign reactive paradign you will forget about threads, race conditions and everything nearby. It's kinda not important anymore.
+
+I assume, that most of the readers of this arctile came from iOS development. So let me make an anology. Reactive programming is Notification center on steroids, but don't worry, a conterweight of the reactive frameworks that they are more sequential and understandable.
+
+
+In iOS development it's hard to do this kind of things in the one way. Because from the biginning Apple gave us several different approaches like: delegates, selectors, GCD and etc. Reactive paradigm could help solve on this problems in one fasion.
 
 
 
@@ -34,14 +41,6 @@ Reactive programming is a paradigm that provides an easy way to create asynchron
 
 
 
-
-
-
-
-
-
-
-It extends the observer pattern to support sequences of data and/or events and adds operators that allow you to compose sequences together declaratively while abstracting away concerns about things like low-level threading, synchronization, thread-safety, concurrent data structures, and non-blocking I/O.
 
 Background
 In many software programming tasks, you more or less expect that the instructions you write will execute and complete incrementally, one-at-a-time, in order as you have written them. But in ReactiveX, many instructions may execute in parallel and their results are later captured, in arbitrary order, by “observers.” Rather than calling a method, you define a mechanism for retrieving and transforming the data, in the form of an “Observable,” and then subscribe an observer to it, at which point the previously-defined mechanism fires into action with the observer standing sentry to capture and respond to its emissions whenever they are ready.
@@ -135,3 +134,11 @@ https://refactoring.guru/design-patterns/observer
 - http://reactivex.io
 - https://github.com/ReactiveX/RxSwift
 - https://refactoring.guru/
+
+
+
+
+# refubrished
+
+
+It extends the observer pattern to support sequences of data and/or events and adds operators that allow you to compose sequences together declaratively while abstracting away concerns about things like low-level threading, synchronization, thread-safety, concurrent data structures, and non-blocking I/O.
