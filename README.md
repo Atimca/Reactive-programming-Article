@@ -44,7 +44,7 @@ Let me answer again on the question: What reactive programming is? Reactive prog
 
 How does this two fellas work together? In easy words, you use `Observer` pattern to be subscribed for new events and use `Iterator` pattern to treat streams of asynchronous events with the same sort of simple, composable operations that you use for collections of data items like arrays. It frees you from tangled webs of callbacks, and thereby makes your code more readable and less prone to bugs.
 
-
+**NOW ABOUT HOW TO CREATE YOUR OWN.**
 
 
 
