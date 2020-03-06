@@ -30,6 +30,19 @@ It's important to understand that reactive aproach is not just a way to handle a
 
 I assume, that most of the readers of this arctile came from iOS development. So let me make an anology. Reactive programming is Notification center on steroids, but don't worry, a conterweight of the reactive frameworks that they are more sequential and understandable. In iOS development it's hard to do things in the one way. Because from the biginning Apple gave us several different approaches like: delegates, selectors, GCD and etc. Reactive paradigm could help solve on this problems in one fasion.
 
+In this article I will use concepts of the main popular reactive framework for iOS: RxSwift (open source based) and Combine (iOS 13+ Apple developers based). Minimum iOS version for Combine is the one the most reasons, why we still considering third party frameworks like RxSwift for development.
+
+## The tale of two friends
+
+Right now I will suggest to stop a little bit of describing reactive definition. Let's put our attention on the action. 
+
+Let me answer again on the question: What reactive programming is? Reactive programming is a friendship of two design patterns: `Iterator` and `Observer`. Let's make a quick reminder how does this patterns work.
+
+`Iterator` is a behavioral design pattern that lets you traverse elements of a collection without exposing its underlying representation (list, stack, tree, etc.). You can read more by this [link](https://refactoring.guru/design-patterns/iterator).
+
+`Observer` is a behavioral design pattern that lets you define a subscription mechanism to notify multiple objects about any events that happen to the object they’re observing. You can read more by this [link](https://refactoring.guru/design-patterns/observer).
+
+How does this two fellas work together? In easy words, you use `Observer` pattern to be subscribed for new events and use `Iterator` pattern to treat streams of asynchronous events with the same sort of simple, composable operations that you use for collections of data items like arrays. It frees you from tangled webs of callbacks, and thereby makes your code more readable and less prone to bugs.
 
 
 
@@ -37,10 +50,9 @@ I assume, that most of the readers of this arctile came from iOS development. So
 
 
 
-Background
-In many software programming tasks, you more or less expect that the instructions you write will execute and complete incrementally, one-at-a-time, in order as you have written them. But in ReactiveX, many instructions may execute in parallel and their results are later captured, in arbitrary order, by “observers.” Rather than calling a method, you define a mechanism for retrieving and transforming the data, in the form of an “Observable,” and then subscribe an observer to it, at which point the previously-defined mechanism fires into action with the observer standing sentry to capture and respond to its emissions whenever they are ready.
 
-An advantage of this approach is that when you have a bunch of tasks that are not dependent on each other, you can start them all at the same time rather than waiting for each one to finish before starting the next one — that way, your entire bundle of tasks only takes as long to complete as the longest task in the bundle.
+
+
 
 There are many terms used to describe this model of asynchronous programming and design. This document will use the following terms: An observer subscribes to an Observable. An Observable emits items or sends notifications to its observers by calling the observers’ methods.
 
@@ -82,9 +94,6 @@ https://github.com/ReactiveX/RxSwift/blob/master/Documentation/Why.md
 
 https://github.com/ReactiveX/RxSwift/blob/master/Documentation/MathBehindRx.md
 
-According to wikipedia:
-Reactive programming is a programming paradigm oriented around data flows and the propagation of change. This means that it should be possible to express static or dynamic data flows with ease in the programming languages used, and that the underlying execution model will automatically propagate changes through the data flow.
-
 RX = OBSERVABLE + OBSERVER + SCHEDULERS
 We are going to discuss these points in detail one by one.
 Observable: Observable are nothing but the data streams. Observable packs the data that can be passed around from one thread to another thread. They basically emit the data periodically or only once in their life cycle based on their configurations. There are various operators that can help observer to emit some specific data based on certain events, but we will look into them in upcoming parts. For now, you can think observables as suppliers. They process and supply the data to other components.
@@ -110,14 +119,6 @@ Which variations could we use now
 ## How does it work?
 
 picture of screaming guy down of the infinitive locs inside an rx
-
-## Three whales of reactive programming
-
-### Iterator
-https://refactoring.guru/design-patterns/iterator
-
-### Observer
-https://refactoring.guru/design-patterns/observer
 
 ### Functional programming
 
