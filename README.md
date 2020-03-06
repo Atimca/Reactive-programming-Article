@@ -22,18 +22,13 @@ Reactive programming is an idea from the late 90s that inspired Erik Meijer, a c
 
 I don't want to make one defenition of what reactive programming is. I would go to the same complicated definition from wikipedia. Better to compare imperative and reactive approaches.
 
-With imperative approach developer can expect that the code instructions will execute incrimentally, one by one, one at a time, in order as you have  writtem them.
+With an imperative approach developer can expect that the code instructions will execute incrimentally, one by one, one at a time, in order as you have writtem them.
 
-With reactive approach you simply don't think about it. You think about how your system `react` on the new information
+With reactive approach you simply don't think about it. You think about how your system `react` on the new information. In simple words our system always ready to handle new information and technicaly doesn't even bother by order of calls in program.
 
-Reactive programming is a paradigm that provides an easy way to create asynchronous, event-driven programs. It helps developers who use to use an imperative pull approach, it's when we make a call of something and then wayting for the result, transfer to push approach where we don't wait for the result, we `react` on the result. In simple words our system always ready to handle new information and technicaly doesn't even bother by order of calls in program.
+It's important to understand that reactive aproach is not just a way to handle asyncronus code. However, while usign reactive paradign you will forget about threads, race conditions and everything. It's kinda not important anymore. To be trully open there's is still schedulers concept nearby, but it's not so complicated and won't be covered in this article.
 
-It's important to understand that reactive aproach is not just a way to handle asyncronus code. While usign reactive paradign you will forget about threads, race conditions and everything nearby. It's kinda not important anymore.
-
-I assume, that most of the readers of this arctile came from iOS development. So let me make an anology. Reactive programming is Notification center on steroids, but don't worry, a conterweight of the reactive frameworks that they are more sequential and understandable.
-
-
-In iOS development it's hard to do this kind of things in the one way. Because from the biginning Apple gave us several different approaches like: delegates, selectors, GCD and etc. Reactive paradigm could help solve on this problems in one fasion.
+I assume, that most of the readers of this arctile came from iOS development. So let me make an anology. Reactive programming is Notification center on steroids, but don't worry, a conterweight of the reactive frameworks that they are more sequential and understandable. In iOS development it's hard to do things in the one way. Because from the biginning Apple gave us several different approaches like: delegates, selectors, GCD and etc. Reactive paradigm could help solve on this problems in one fasion.
 
 
 
