@@ -26,15 +26,56 @@ With an imperative approach developer can expect that the code instructions will
 
 With reactive approach you simply don't think about it. You think about how your system `react` on the new information. In simple words our system always ready to handle new information and technicaly doesn't even bother by order of calls in program.
 
-It's important to understand that reactive aproach is not just a way to handle asyncronus code. However, while usign reactive paradign you will forget about threads, race conditions and everything. It's kinda not important anymore. To be trully open there's is still schedulers concept nearby, but it's not so complicated and won't be covered in this article.
+It's important to understand that reactive aproach is not just a way to handle asyncronus code. However, while usign reactive paradign you will forget about threads, race conditions and everything else. It's kinda not important anymore. To be trully open there's still schedulers concept nearby, but it's not so complicated and won't be covered in this article.
 
-I assume, that most of the readers of this arctile came from iOS development. So let me make an anology. Reactive programming is Notification center on steroids, but don't worry, a conterweight of the reactive frameworks that they are more sequential and understandable. In iOS development it's hard to do things in the one way. Because from the biginning Apple gave us several different approaches like: delegates, selectors, GCD and etc. Reactive paradigm could help solve on this problems in one fasion.
+I assume, that most of the readers of this arcticle came from iOS development. So let me make an analogy. Reactive programming is Notification center on steroids, but don't worry, a counterweight of the reactive frameworks that they are more sequential and understandable. In iOS development, it's hard to do things in the one way. Because Apple gave us several different approaches like delegates, selectors, GCD and etc. Reactive paradigm could help solve on this problems in one fasion.
 
-In this article I will use concepts of the main popular reactive framework for iOS: RxSwift (open source based) and Combine (iOS 13+ Apple developers based). Minimum iOS version for Combine is the one the most reasons, why we still considering third party frameworks like RxSwift for development.
+In this article I will use concepts of the main popular reactive framework for iOS: RxSwift (open source based) and Combine (iOS 13+ Apple developers based). The minimum iOS version for Combine is the one the most reasons, why we still considering third party frameworks like RxSwift for development.
+
+Ok, sounds quite simple. Let's take a look on a couple of functions in one class in `RxSwift` implementation:
+
+```swift
+public final class BehaviorSubject<Element> {
+
+    public func value() throws -> Element {
+        self._lock.lock(); defer { self._lock.unlock() }
+            if self._isDisposed {
+                throw RxError.disposed(object: self)
+            }
+            
+            if let error = self._stoppedEvent?.error {
+                throw error
+            }
+            else {
+                return self._element
+            }
+    }
+
+    func _synchronized_on(_ event: Event<Element>) -> Observers {
+        self._lock.lock(); defer { self._lock.unlock() }
+        if self._stoppedEvent != nil || self._isDisposed {
+            return Observers()
+        }
+        
+        switch event {
+        case .next(let element):
+            self._element = element
+        case .error, .completed:
+            self._stoppedEvent = event
+        }
+        
+        return self._observers
+    }
+}
+```
+
+![long_neck](images/long_neck.png)
+
+This even partly example looks not easy at all... Ok implementation of `RxSwift` not so simple. But let me explain myself. `RxSwift` is a advanced, highly optimized framework with a big functionality. To understand the principles of reactive world this framework doesn't fit. So, what we going to do? We going to write our own reactive library from scratch. For do this, firstly we need to understand from which parts this library consists of.
 
 ## The tale of two friends
 
-Right now I will suggest to stop a little bit of describing reactive definition. Let's put our attention on the action. 
+Right now I will suggest to stop a little bit from boring intros. Let's put our attention on the action. 
 
 Let me answer again on the question: What reactive programming is? Reactive programming is a friendship of two design patterns: `Iterator` and `Observer`. Let's make a quick reminder how does this patterns work.
 
@@ -124,6 +165,10 @@ picture of screaming guy down of the infinitive locs inside an rx
 
 ## Lets make our own basic reactive framework
 
+
+## Outro
+
+I hope at least for now, reactive programming hasn't looked scary anymore. However, I hear time to time from people, that reactive way could lead us to enumorous number of sequencies flying around the project and it's very easy to shoot in your leg with this approach. I won't fight against this, and you can easily google bad style of dooing reactive. I just will try to show a simple way of living in harmony with reactive way in next chapters.
 
 ## Where to go after
 
