@@ -2,7 +2,7 @@
 
 ## What is Reactive Programming
 
-There are a lot of articles about Reactive Programming and different implementations on the internet. However, most of them about practical usage and only few about what is this reactive programming and how does it actually work. For my personal opionion it is more important to understand how this frameworks work deep inside (spoiler: nothing complicated in there actually), rather than start to use an enumerous number of traits and operators meanwhile shoting in your leg.
+There are a lot of articles about Reactive Programming and different implementations on the internet. However, most of them about practical usage and only few about what is this reactive programming and how does it actually work. For my personal opionion it is more important to understand how frameworks work deep inside (spoiler: nothing complicated in there actually), rather than start to use an enumerous number of traits and operators meanwhile shoting in your leg.
 
 So, what is Reactive programming?
 
@@ -85,12 +85,88 @@ How does this two fellas work together? In easy words, you use `Observer` patter
 
 **NOW ABOUT HOW TO CREATE YOUR OWN.**
 
+Let's start from the begining. From `Iterator` pattern.
 
+Here's a simple sequence of integers:
+```swift
+let sequence = [1, 2, 3, 4, 5]
+```
 
+And I want to interate through it. Easy enough:
+```swift
+var iterator = sequence.makeIterator()
 
+while let item = iterator.next() {
+    print(item)
+}
 
+// 1 2 3 4 5
+```
+  
+However, I think that everybody would call this method of iteration via sequence a little bit weird. Let's do the proper one:
+```swift
+sequence.forEach { item in
+    print(item)
+}
 
+// 1 2 3 4 5
+```
 
+Ok, now it looks more natural I hope. I used `forEach` method on purpose. `forEach` has this signature `func forEach(_ body: (Element) -> Void)`. It's a function which take a function(handler) as an argument and perform this handler over the sequence. Let's try to build `forEach` by ourself.
+
+```swift
+extension Array {
+    func forEach(_ body: @escaping (Element) -> Void) {
+        for element in self {
+            body(element)
+        }
+    }
+}
+
+sequence.forEach {
+    print($0)
+}
+
+// 1 2 3 4 5
+```
+
+With `forEach` semantics it's possible to write this elegant code.
+
+```swift
+func handle(_ item: Int) {
+    print(item)
+}
+
+sequence.forEach(handle)
+
+// 1 2 3 4 5
+```
+
+As I said before, that reactive programming is above all thread problems. Let's add to our custom `forEach` some thread abstraction.
+
+```swift
+extension Array {
+    func forEach(
+        on queue: DispatchQueue,
+        body: @escaping (Element) -> Void) {
+        for element in self {
+            queue.async { body(element) }
+        }
+    }
+}
+
+let queue = DispatchQueue(
+    label: "com.reactive",
+    qos: .background,
+    attributes: .concurrent
+)
+
+sequence.forEach(on: queue, body: handle)
+
+// Output would be unpredictable, but we'd see all 5 values.
+```
+
+Ok, I went so far and did some strange custom `forEach` for Array. What is this for? We finished with some simple overview of `Iterator` pattern and let's move to `Observer`. Moreover, let's try to combine them. Back in the days the were quite popular class in `RxSwift`, which called `Variable`, now it's more proper to use `BehaviorRelay`, however I think for demonstrations `Variable` would be the great fit. As you remember `Observer` pattern allows to observe for some events over the object. So we have two active entities. `Observable` something that emits data and `Observer` consumes the data stream emitted by the `observable`. Не надо вэриабл сделаю два по отдельности.
 
 
 There are many terms used to describe this model of asynchronous programming and design. This document will use the following terms: An observer subscribes to an Observable. An Observable emits items or sends notifications to its observers by calling the observers’ methods.

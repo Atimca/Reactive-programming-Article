@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<playground version='6.0' target-platform='ios' display-mode='rendered' executeOnSourceChanges='false'>
+    <pages>
+        <page name='for_in'/>
+        <page name='iterator'/>
+        <page name='ZeroIterator'/>
+        <page name='InfinityIterator'/>
+        <page name='OneIterator'/>
+        <page name='push'/>
+        <page name='async'/>
+        <page name='complete'/>
+        <page name='error'/>
+        <page name='event'/>
+        <page name='observer'/>
+    </pages>
+</playground>

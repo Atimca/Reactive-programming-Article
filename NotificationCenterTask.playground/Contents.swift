@@ -28,7 +28,7 @@ class Observer<Element> {
     }
 }
 
-class Variable<Element> {
+class Observable<Element> {
     private typealias WeakObserver = WeakRef<Observer<Element>>
     private var bag: [WeakObserver] = []
     private let isolationQueue = DispatchQueue(label: "", attributes: .concurrent)
@@ -64,23 +64,66 @@ class Variable<Element> {
     }
 }
 
-let variable = Variable<Int>(value: 1)
+//let observable = Observable<Int>(value: 1)
+//
+//var observer1: Observer<Int>? = observable
+//    .subscribe { event in
+//        print(event)
+//}
+//
+//for i in 10...20 {
+//    DispatchQueue(label: "", qos: .background, attributes: .concurrent).asyncAfter(deadline: .now() + 0.3) {
+//        observable.value = i
+//    }
+//}
+//
+//for i in 21...30 {
+//    DispatchQueue(label: "", qos: .background, attributes: .concurrent).asyncAfter(deadline: .now() + 0.3) {
+//        observable.value = i
+//    }
+//}
 
-var observer1: Observer<Int>? = variable
-    .subscribe { event in
-        print(event)
-}
+let sequence = [1, 2, 3, 4, 5]
+var iterator = sequence.makeIterator()
 
-for i in 10...20 {
-    DispatchQueue(label: "", qos: .background, attributes: .concurrent).asyncAfter(deadline: .now() + 0.3) {
-        variable.value = i
+//while let item = iterator.next() {
+//    print(item)
+//}
+
+//sequence.forEach { item in
+//    print(item)
+//}
+
+extension Array {
+    func forEach(_ body: @escaping (Element) -> Void) {
+        for element in self {
+            body(element)
+        }
     }
 }
 
-for i in 21...30 {
-    DispatchQueue(label: "", qos: .background, attributes: .concurrent).asyncAfter(deadline: .now() + 0.3) {
-        variable.value = i
+func handle(_ item: Int) {
+    print(item)
+}
+
+//sequence.forEach(handle)
+
+extension Array {
+    func forEach(
+        on queue: DispatchQueue,
+        body: @escaping (Element) -> Void) {
+        for element in self {
+            queue.async { body(element) }
+        }
     }
 }
+
+let queue = DispatchQueue(
+    label: "com.reactive",
+    qos: .background,
+    attributes: .concurrent
+)
+
+sequence.forEach(on: queue, body: handle)
 
 PlaygroundPage.current.needsIndefiniteExecution = true
