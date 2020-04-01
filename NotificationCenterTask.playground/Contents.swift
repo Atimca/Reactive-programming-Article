@@ -15,54 +15,177 @@ enum Event<Element> {
     case completed
 }
 
+//class Observer<Element> {
+//
+//    private let on: (Event<Element>) -> Void
+//
+//    init(_ on: @escaping (Event<Element>) -> Void) {
+//        self.on = on
+//    }
+//
+//    func on(_ event: Event<Element>) {
+//        on(event)
+//    }
+//}
+
 class Observer<Element> {
 
-    private let on: (Event<Element>) -> Void
+    private let on: (Element) -> Void
 
-    init(_ on: @escaping (Event<Element>) -> Void) {
+    init(_ on: @escaping (Element) -> Void) {
         self.on = on
     }
 
-    func on(_ event: Event<Element>) {
+    func on(_ event: Element) {
         on(event)
     }
 }
 
 class Observable<Element> {
     private typealias WeakObserver = WeakRef<Observer<Element>>
-    private var bag: [WeakObserver] = []
-    private let isolationQueue = DispatchQueue(label: "", attributes: .concurrent)
+    private var observers: [WeakObserver] = []
 
-    var cash: [Element] = []
-
-    private var _value: Element
     var value: Element {
-        get {
-            isolationQueue.sync { _value }
-        }
-        set {
-            isolationQueue.async(flags: .barrier) {
-                self._value = newValue
-                self.cash.append(newValue)
-                self.bag.forEach { $0.value?.on(.next(newValue)) }
-            }
+        didSet {
+            observers.forEach { $0.value?.on(self.value) }
         }
     }
 
     init(value: Element) {
-        self._value = value
+        self.value = value
     }
 
-    deinit {
-        bag.forEach { $0.value?.on(.completed) }
-    }
-
-    func subscribe(on: @escaping (Event<Element>) -> Void) -> Observer<Element> {
-        let observer = Observer<Element>(on)
-        bag.append(.init(value: observer))
+    func subscribe(onNext: @escaping (Element) -> Void) -> Observer<Element> {
+        let observer = Observer(onNext)
+        observers.append(.init(value: observer))
         return observer
     }
 }
+
+//let observer1 = Observer<Int> {
+//    print("first:  ", $0)
+//}
+//
+//var observer2: Observer! = Observer<Int> {
+//    print("second: ", $0)
+//}
+
+let observable = Observable<Int>(value: 0)
+let observer = observable.subscribe {
+    print($0)
+}
+
+for i in 1...5 {
+    DispatchQueue(label: "1", qos: .background, attributes: .concurrent).asyncAfter(deadline: .now() + 0.3) {
+        observable.value = i
+    }
+}
+
+for i in 6...9 {
+    DispatchQueue(label: "2", qos: .background, attributes: .concurrent).asyncAfter(deadline: .now() + 0.3) {
+        observable.value = i
+    }
+}
+
+//class Observable<Element> {
+//    private var observers: [Observer<Element>] = []
+//
+//    var cash: [Element] = []
+//
+//    private var _value: Element
+//    var value: Element {
+//        get {
+//            _value
+//        }
+//        set {
+//            self._value = newValue
+//            self.observers.forEach { $0.on(.next(newValue)) }
+//        }
+//    }
+//
+//    init(value: Element) {
+//        self._value = value
+//    }
+//
+//    deinit {
+//        observers.forEach { $0.on(.completed) }
+//    }
+//
+//    func subscribe(on: @escaping (Event<Element>) -> Void) -> Observer<Element> {
+//        let observer = Observer<Element>(on)
+//        observers.append(observer)
+//        return observer
+//    }
+//}
+
+//class Observable<Element> {
+//    private var observers: [Observer<Element>] = []
+//
+//    var cash: [Element] = []
+//
+//    private var _value: Element
+//    var value: Element {
+//        get {
+//            _value
+//        }
+//        set {
+//            self._value = newValue
+//            self.cash.append(newValue)
+//            self.observers.forEach { $0.on(.next(newValue)) }
+//        }
+//    }
+//
+//    init(value: Element) {
+//        self._value = value
+//    }
+//
+//    deinit {
+//        observers.forEach { $0.on(.completed) }
+//    }
+//
+//    func subscribe(on: @escaping (Event<Element>) -> Void) -> Observer<Element> {
+//        let observer = Observer<Element>(on)
+//        observers.append(observer)
+//        return observer
+//    }
+//}
+
+
+//class Observable<Element> {
+//    private typealias WeakObserver = WeakRef<Observer<Element>>
+//    private var bag: [WeakObserver] = []
+//    private let isolationQueue = DispatchQueue(label: "", attributes: .concurrent)
+//
+//    var cash: [Element] = []
+//
+//    private var _value: Element
+//    var value: Element {
+//        get {
+//            isolationQueue.sync { _value }
+//        }
+//        set {
+//            isolationQueue.async(flags: .barrier) {
+//                self._value = newValue
+//                self.cash.append(newValue)
+//                self.bag.forEach { $0.value?.on(.next(newValue)) }
+//            }
+//        }
+//    }
+//
+//    init(value: Element) {
+//        self._value = value
+//    }
+//
+//    deinit {
+//        bag.forEach { $0.value?.on(.completed) }
+//    }
+//
+//    func subscribe(on: @escaping (Event<Element>) -> Void) -> Observer<Element> {
+//        let observer = Observer<Element>(on)
+//        bag.append(.init(value: observer))
+//        return observer
+//    }
+//}
 
 //let observable = Observable<Int>(value: 1)
 //
@@ -83,47 +206,47 @@ class Observable<Element> {
 //    }
 //}
 
-let sequence = [1, 2, 3, 4, 5]
-var iterator = sequence.makeIterator()
-
-//while let item = iterator.next() {
+//let sequence = [1, 2, 3, 4, 5]
+//var iterator = sequence.makeIterator()
+//
+////while let item = iterator.next() {
+////    print(item)
+////}
+//
+////sequence.forEach { item in
+////    print(item)
+////}
+//
+//extension Array {
+//    func forEach(_ body: @escaping (Element) -> Void) {
+//        for element in self {
+//            body(element)
+//        }
+//    }
+//}
+//
+//func handle(_ item: Int) {
 //    print(item)
 //}
-
-//sequence.forEach { item in
-//    print(item)
+//
+////sequence.forEach(handle)
+//
+//extension Array {
+//    func forEach(
+//        on queue: DispatchQueue,
+//        body: @escaping (Element) -> Void) {
+//        for element in self {
+//            queue.async { body(element) }
+//        }
+//    }
 //}
-
-extension Array {
-    func forEach(_ body: @escaping (Element) -> Void) {
-        for element in self {
-            body(element)
-        }
-    }
-}
-
-func handle(_ item: Int) {
-    print(item)
-}
-
-//sequence.forEach(handle)
-
-extension Array {
-    func forEach(
-        on queue: DispatchQueue,
-        body: @escaping (Element) -> Void) {
-        for element in self {
-            queue.async { body(element) }
-        }
-    }
-}
-
-let queue = DispatchQueue(
-    label: "com.reactive",
-    qos: .background,
-    attributes: .concurrent
-)
-
-sequence.forEach(on: queue, body: handle)
+//
+//let queue = DispatchQueue(
+//    label: "com.reactive",
+//    qos: .background,
+//    attributes: .concurrent
+//)
+//
+//sequence.forEach(on: queue, body: handle)
 
 PlaygroundPage.current.needsIndefiniteExecution = true

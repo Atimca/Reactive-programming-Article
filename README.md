@@ -166,7 +166,256 @@ sequence.forEach(on: queue, body: handle)
 // Output would be unpredictable, but we'd see all 5 values.
 ```
 
-Ok, I went so far and did some strange custom `forEach` for Array. What is this for? We finished with some simple overview of `Iterator` pattern and let's move to `Observer`. Moreover, let's try to combine them. Back in the days the were quite popular class in `RxSwift`, which called `Variable`, now it's more proper to use `BehaviorRelay`, however I think for demonstrations `Variable` would be the great fit. As you remember `Observer` pattern allows to observe for some events over the object. So we have two active entities. `Observable` something that emits data and `Observer` consumes the data stream emitted by the `observable`. Не надо вэриабл сделаю два по отдельности.
+Ok, I went so far and did some strange custom `forEach` for Array. What is this for? We finished with some simple overview of `Iterator` pattern and let's move to `Observer`. As you remember `Observer` pattern allows to observe for some events over the object. So we have two active entities. `Observable` something that emits data and `Observer` consumes the data stream emitted by the `observable`.
+
+// Observable is a stream with data itself and Observer is a cunsomer of this stream, who react on the new data
+
+Let's start with `Observer`. It's a cunsomer of data stream, who can do something around this data. Let me translate, it's a class with a function inside, which calls when new data arrives:
+
+```swift
+class Observer<Element> {
+
+    private let on: (Element) -> Void
+
+    init(_ on: @escaping (Element) -> Void) {
+        self.on = on
+    }
+
+    func on(_ event: Element) {
+        on(event)
+    }
+}
+```
+
+`Observable` it's a data itself.
+
+```swift
+class Observable<Element> {
+
+    var value: Element
+
+    init(value: Element) {
+        self.value = value
+    }
+}
+```
+
+Also `Observable` should allow to `subscribe` of consumer of this data. And via changing of this data in `Observable` `Observer` neads to know about this changes.
+
+```swift
+class Observable<Element> {
+    private var observers: [Observer<Element>] = []
+
+    var value: Element {
+        didSet {
+            observers.forEach { $0.on(self.value) }
+        }
+    }
+
+    init(value: Element) {
+        self.value = value
+    }
+
+    func subscribe(on observer: Observer<Element>) {
+        observers.append(observer)
+    }
+}
+```
+
+Actually we just build our `Observer` pattern. So, let's try this out.
+
+```swift
+let observer = Observer<Int> {
+    print($0)
+}
+
+let observable = Observable<Int>(value: 0)
+observable.subscribe(on: observer)
+
+for i in 1...5 {
+    observable.value = i
+}
+
+// 1, 2, 3, 4, 5
+```
+And it works! But hold on for a sec let's add some modifications, before we go further.
+
+Maybe you've already mantioned, that out `Observable` stores all input `Observers` via subscription, which is not so great. Let's make this dependency `weak`. Swift doesn't support weak array for now, maybe for forever, so we need to handle this situation somehow. Let's imptement the entity wrapper with weak referance on it.
+
+```swift
+class WeakRef<T> where T: AnyObject {
+
+    private(set) weak var value: T?
+
+    init(value: T?) {
+        self.value = value
+    }
+}
+```
+
+It's a generic object, which could held other objects weakly. Let's make some improvements to our `Observable`.
+
+```swift
+class Observable<Element> {
+    private typealias WeakObserver = WeakRef<Observer<Element>>
+    private var observers: [WeakObserver] = []
+
+    var value: Element {
+        didSet {
+            observers.forEach { $0.value?.on(self.value) }
+        }
+    }
+
+    init(value: Element) {
+        self.value = value
+    }
+
+    func subscribe(on observer: Observer<Element>) {
+        observers.append(.init(value: observer))
+    }
+}
+```
+Ok, for now `Observer`s not holded by `Observable`. Let's try this out and create two observers.
+
+```swift
+let observer1 = Observer<Int> {
+    print("first:  ", $0)
+}
+
+var observer2: Observer! = Observer<Int> {
+    print("second: ", $0)
+}
+
+let observable = Observable<Int>(value: 0)
+observable.subscribe(on: observer1)
+observable.subscribe(on: observer2)
+
+for i in 1...5 {
+    observable.value = i
+
+    if i == 2 {
+        observer2 = nil
+    }
+}
+
+/*
+first:   1
+second:  1
+first:   2
+second:  2
+first:   3
+first:   4
+first:   5
+*/
+```
+
+As you can see, the second `Obsesrver` was destroyed after `2` which proves workability of our code.
+
+But I think, creating `Observer` object by hand all the time could be boring, so let's improve `Observable` to consume the closure not an object. 
+
+```swift
+class Observable<Element> {
+    private typealias WeakObserver = WeakRef<Observer<Element>>
+    private var observers: [WeakObserver] = []
+
+    var value: Element {
+        didSet {
+            observers.forEach { $0.value?.on(self.value) }
+        }
+    }
+
+    init(value: Element) {
+        self.value = value
+    }
+
+    func subscribe(onNext: @escaping (Element) -> Void) -> Observer<Element> {
+        let observer = Observer(onNext)
+        observers.append(.init(value: observer))
+        return observer
+    }
+}
+
+let observable = Observable<Int>(value: 0)
+let observer = observable.subscribe {
+    print($0)
+}
+
+for i in 1...5 {
+    observable.value = i
+}
+
+// 1, 2, 3, 4, 5
+```
+
+For my taste usage is more clear now, however it's possible to use both `subscribe` functions.
+
+Let's do some asynchronous stress test for our `Observable`.
+
+```swift
+let observable = Observable<Int>(value: 0)
+let observer = observable.subscribe {
+    print($0)
+}
+
+for i in 1...5 {
+    DispatchQueue(label: "1", qos: .background, attributes: .concurrent).asyncAfter(deadline: .now() + 0.3) {
+        observable.value = i
+    }
+}
+
+for i in 6...9 {
+    DispatchQueue(label: "2", qos: .background, attributes: .concurrent).asyncAfter(deadline: .now() + 0.3) {
+        observable.value = i
+    }
+}
+```
+In this case we should receive numbers from 1 to 9 in random order, because we run changes in different asynchronous queue. But for my case it was like this 
+
+```swift
+/*
+3
+4
+4
+4
+5
+6
+7
+8
+9
+*/
+```
+
+As you can see not that we expected. The solution is easy, let's add some thread protection.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 There are many terms used to describe this model of asynchronous programming and design. This document will use the following terms: An observer subscribes to an Observable. An Observable emits items or sends notifications to its observers by calling the observers’ methods.
