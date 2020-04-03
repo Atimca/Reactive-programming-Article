@@ -26,6 +26,11 @@ With an imperative approach developer can expect that the code instructions will
 
 With reactive approach you simply don't think about it. You think about how your system `react` on the new information. In simple words our system always ready to handle new information and technicaly doesn't even bother by order of calls in program.
 
+Way to stop to think about threads and strart to think about sequences.
+
+Why Use Observables?  
+The ReactiveX Observable model allows you to treat streams of asynchronous events with the same sort of simple, composable operations that you use for collections of data items like arrays. It frees you from tangled webs of callbacks, and thereby makes your code more readable and less prone to bugs.
+
 It's important to understand that reactive aproach is not just a way to handle asyncronus code. However, while usign reactive paradign you will forget about threads, race conditions and everything else. It's kinda not important anymore. To be trully open there's still schedulers concept nearby, but it's not so complicated and won't be covered in this article.
 
 I assume, that most of the readers of this arcticle came from iOS development. So let me make an analogy. Reactive programming is Notification center on steroids, but don't worry, a counterweight of the reactive frameworks that they are more sequential and understandable. In iOS development, it's hard to do things in the one way. Because Apple gave us several different approaches like delegates, selectors, GCD and etc. Reactive paradigm could help solve on this problems in one fasion.
@@ -165,6 +170,8 @@ sequence.forEach(on: queue, body: handle)
 
 // Output would be unpredictable, but we'd see all 5 values.
 ```
+
+There are many terms used to describe this model of asynchronous programming and design. This document will use the following terms: An observer subscribes to an Observable. An Observable emits items or sends notifications to its observers by calling the observers’ methods.
 
 Ok, I went so far and did some strange custom `forEach` for Array. What is this for? We finished with some simple overview of `Iterator` pattern and let's move to `Observer`. As you remember `Observer` pattern allows to observe for some events over the object. So we have two active entities. `Observable` something that emits data and `Observer` consumes the data stream emitted by the `observable`.
 
@@ -531,99 +538,3 @@ I hope at least for now, reactive programming hasn't looked scary anymore. Howev
 - http://reactivex.io
 - https://github.com/ReactiveX/RxSwift
 - https://refactoring.guru/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-There are many terms used to describe this model of asynchronous programming and design. This document will use the following terms: An observer subscribes to an Observable. An Observable emits items or sends notifications to its observers by calling the observers’ methods.
-
-In other documents and other contexts, what we are calling an “observer” is sometimes called a “subscriber,” “watcher,” or “reactor.” This model in general is often referred to as the “reactor pattern”.
-
-Way to stop to think about threads and strart to think about sequences.
-
-
-Syntaxis sugar helps to do hard things in the easy way.
-
-Why Use Observables?  
-The ReactiveX Observable model allows you to treat streams of asynchronous events with the same sort of simple, composable operations that you use for collections of data items like arrays. It frees you from tangled webs of callbacks, and thereby makes your code more readable and less prone to bugs.
-
-![logo](images/image1.png)
-
-How is this Observable implemented?
-
-Who cares (actually we are, this article about this). However, who cares, while using it in your project.
-
-- does it work synchronously on the same thread as the caller?
-- does it work asynchronously on a distinct thread?
-- does it divide its work over multiple threads that may return data to the caller in any order?
-- does it use an Actor (or multiple Actors) instead of a thread pool?
-- does it use NIO with an event-loop to do asynchronous network access?
-- does it use an event-loop to separate the work thread from the callback thread?
-
-The Observable type adds two missing semantics to the Gang of Four’s Observer pattern, to match those that are available in the Iterable type:
-
-the ability for the producer to signal to the consumer that there is no more data available (a foreach loop on an Iterable completes and returns normally in such a case; an Observable calls its observer’s onCompleted method)
-the ability for the producer to signal to the consumer that an error has occurred (an Iterable throws an exception if an error takes place during iteration; an Observable calls its observer’s onError method)
-With these additions, ReactiveX harmonizes the Iterable and Observable types. The only difference between them is the direction in which the data flows. This is very important because now any operation you can perform on an Iterable, you can also perform on an Observable.
-
-
-much more declarative way of doing things. you don't expect anything after your code was executed. You just react on changes in your system
-
-Since we manipulate with collections, we could treat them as simple arrays.
-
-https://github.com/ReactiveX/RxSwift/blob/master/Documentation/Why.md
-
-https://github.com/ReactiveX/RxSwift/blob/master/Documentation/MathBehindRx.md
-
-RX = OBSERVABLE + OBSERVER + SCHEDULERS
-We are going to discuss these points in detail one by one.
-Observable: Observable are nothing but the data streams. Observable packs the data that can be passed around from one thread to another thread. They basically emit the data periodically or only once in their life cycle based on their configurations. There are various operators that can help observer to emit some specific data based on certain events, but we will look into them in upcoming parts. For now, you can think observables as suppliers. They process and supply the data to other components.
-Observers: Observers consumes the data stream emitted by the observable. Observers subscribe to the observable using subscribeOn() method to receive the data emitted by the observable. Whenever the observable emits the data all the registered observer receives the data in onNext() callback. Here they can perform various operations like parsing the JSON response or updating the UI. If there is an error thrown from observable, the observer will receive it in onError().
-Schedulers: Remember that Rx is for asynchronous programming and we need a thread management. There is where schedules come into the picture. Schedulers are the component in Rx that tells observable and observers, on which thread they should run. You can use observeOn() method to tell observers, on which thread you should observe. Also, you can use scheduleOn() to tell the observable, on which thread you should run. There are main default threads are provided in RxJava like Schedulers.newThread() will create new background that. Schedulers.io() will execute the code on IO thread.
-
-If you’re familiar with RxSwift you’ll notice that Publishers are basically Observables and Subscribers are Observers; they have different names but work the same way. A Publisher exposes values that can change and a Subscriber “subscribes” so it can receive all these changes.
-
-
-ADD image that everything is sequence
-
-
-People Are Afraid of usign reactive approaches like RxSwift.
-
-## Where is it come from
-
-Why do we need it?
-
-Who in charge of creation?
-
-Which variations could we use now
-
-## How does it work?
-
-picture of screaming guy down of the infinitive locs inside an rx
-
-### Functional programming
-
-## Lets make our own basic reactive framework
-
-
-
-# refubrished
-
-
-It extends the observer pattern to support sequences of data and/or events and adds operators that allow you to compose sequences together declaratively while abstracting away concerns about things like low-level threading, synchronization, thread-safety, concurrent data structures, and non-blocking I/O.
