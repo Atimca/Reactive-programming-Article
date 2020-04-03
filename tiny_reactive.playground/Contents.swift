@@ -16,6 +16,19 @@ enum Event<Element> {
     case error(Error)
 }
 
+//class Observer<Element> {
+//
+//    private let on: (Event<Element>) -> Void
+//
+//    init(_ on: @escaping (Event<Element>) -> Void) {
+//        self.on = on
+//    }
+//
+//    func on(_ event: Event<Element>) {
+//        on(event)
+//    }
+//}
+
 class Observer<Element> {
 
     private let on: (Element) -> Void
@@ -31,7 +44,7 @@ class Observer<Element> {
 
 class Observable<Element> {
     typealias WeakObserver = WeakRef<Observer<Element>>
-    private var observers: [WeakObserver] = []
+    var observers: [WeakObserver] = []
     private let isolationQueue = DispatchQueue(label: "", attributes: .concurrent)
 
     private var _value: Element
@@ -54,7 +67,9 @@ class Observable<Element> {
 
     func subscribe(onNext: @escaping (Element) -> Void) -> Observer<Element> {
         let transform = self.transform ?? { $0 }
-        let observer = Observer<Element>(onNext(transform))
+        let observer = Observer<Element> { element in
+            onNext(transform(element))
+        }
         observers.append(.init(value: observer))
         return observer
     }

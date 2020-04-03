@@ -14,7 +14,7 @@ Reactive programming is a declarative programming paradigm concerned with data s
 
 Excuse me, WHAT?
 
-![jackie](images/jackie_what.jpg)  
+![jackie](images/jackie_what.png)  
 
 Ok, let's start from the begining.
 
@@ -385,19 +385,152 @@ In this case we should receive numbers from 1 to 9 in random order, because we r
 */
 ```
 
-As you can see not that we expected. The solution is easy, let's add some thread protection.
+As you can see not that we expected. The solution is easy, let's add some thread protection. There are several solutions of course, but I'll use method with dispatch barrier. Here's the solution.
 
+```swift
+class Observable<Element> {
+    private typealias WeakObserver = WeakRef<Observer<Element>>
+    private var observers: [WeakObserver] = []
+    private let isolationQueue = DispatchQueue(label: "", attributes: .concurrent)
 
+    private var _value: Element
+    var value: Element {
+        get {
+            isolationQueue.sync { _value }
+        }
+        set {
+            isolationQueue.async(flags: .barrier) {
+                self._value = newValue
+                self.observers.forEach { $0.value?.on(newValue) }
+            }
+        }
+    }
 
+    init(value: Element) {
+        self._value = value
+    }
 
+    func subscribe(onNext: @escaping (Element) -> Void) -> Observer<Element> {
+        let observer = Observer(onNext)
+        observers.append(.init(value: observer))
+        return observer
+    }
+}
+```
 
+The same test as previously gave me the result.
 
+```swift
+/*
+1
+2
+3
+4
+5
+6
+7
+8
+9
+*/
+```
+This time it's even in the right order, but it's not granted. 
 
+There's another difference between vanila `Observer` pattern and most of the reactive frameworks. Usually, as an `Element` from `Observable` you consume not just an `Element`, but some kind of `Event` structure, which usually looks like this.
 
+```swift
+enum Event<Element> {
+    case next(Element)
+    case completed
+    case error(Error)
+}
+```
 
+Kinda handy solution, because you can somehowe situation when your sequence completed or received an error.
 
+**Let's compose `Observer` and `Iterator`**
 
+One of the killer feartures for reactive programming is possibility to treat your `Observable` `sequence` as a `Sequence` I think everybody knows this handy functions like `map`, `flatMap`, `reduce` and so on. As an example, let's try to add to our `Observable` the `map` function. But firstly let's remember how does it work with a simple array.
 
+```swift
+let sequence = [1, 2, 3, 4, 5]
+let newSequence = sequence
+    .map { element in
+        return element + 1
+}
+
+// newSequence: 2, 3, 4, 5, 6
+```
+
+This case is a primitive adding 1 to every element. Can we do the same with an `Observable`? Sure we can. Let's add a `map` function to our `Observable`.
+
+```swift
+class Observable<Element> {
+    typealias WeakObserver = WeakRef<Observer<Element>>
+    private var observers: [WeakObserver] = []
+    private let isolationQueue = DispatchQueue(label: "", attributes: .concurrent)
+
+    private var _value: Element
+    var value: Element {
+        get {
+            isolationQueue.sync { _value }
+        }
+        set {
+            isolationQueue.async(flags: .barrier) {
+                self._value = newValue
+                self.observers.forEach { $0.value?.on(newValue) }
+            }
+        }
+    }
+    private var transform: ((Element) -> Element)?
+
+    init(value: Element) {
+        self._value = value
+    }
+
+    func subscribe(onNext: @escaping (Element) -> Void) -> Observer<Element> {
+        let transform = self.transform ?? { $0 }
+        let observer = Observer<Element> { element in
+            onNext(transform(element))
+        }
+        observers.append(.init(value: observer))
+        return observer
+    }
+
+    func map(_ transform: @escaping (Element) -> Element) -> Observable<Element> {
+        self.transform = transform
+        return self
+    }
+}
+
+let observable = Observable<Int>(value: 0)
+let observer = observable
+    .map { $0 + 1 }
+    .subscribe { print($0) }
+
+for i in 1...5 {
+    observable.value = i
+}
+
+// 2, 3, 4, 5, 6
+```
+
+Yeah, you can mentioned that I've cheated a little bit.
+
+![Mr_Burns.png](images/Mr_Burns.png)
+
+True `map` function would have this structure `func map<T>(_ transform: @escaping (Element) -> T) -> Observable<T>`, but for a sake of simplicity of this article I just added this `func map(_ transform: @escaping (Element) -> Element) -> Observable<Element>`. I hope you can forgive me and understood the point. Actually we've done with our own reactive framework. It's super simplified but it works.
+
+Gist with a last iteration of this article you can find [here](https://gist.github.com/Atimca/51c83f4c9161fc36bed340b02e605d09).
+
+## Outro
+
+I hope at least for now, reactive programming hasn't looked scary anymore. However, I hear time to time from people, that reactive way could lead us to enumorous number of sequencies flying around the project and it's very easy to shoot in your leg with this approach. I won't fight against this, and you can easily google bad style of dooing reactive. I just will try to show a simple way of living in harmony with reactive way in next chapters.
+
+## Where to go after
+
+- http://reactivex.io
+- https://github.com/ReactiveX/RxSwift
+- https://refactoring.guru/
 
 
 
@@ -487,18 +620,6 @@ picture of screaming guy down of the infinitive locs inside an rx
 ### Functional programming
 
 ## Lets make our own basic reactive framework
-
-
-## Outro
-
-I hope at least for now, reactive programming hasn't looked scary anymore. However, I hear time to time from people, that reactive way could lead us to enumorous number of sequencies flying around the project and it's very easy to shoot in your leg with this approach. I won't fight against this, and you can easily google bad style of dooing reactive. I just will try to show a simple way of living in harmony with reactive way in next chapters.
-
-## Where to go after
-
-- http://reactivex.io
-- https://github.com/ReactiveX/RxSwift
-- https://refactoring.guru/
-
 
 
 
