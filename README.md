@@ -1,6 +1,6 @@
 # What is ~~RxSwift~~ ~~Combine~~ Reactive Programming?
 
-There are a lot of articles about Reactive Programming and different implementations on the internet. However, most of them about practical usage and only a few about what this reactive programming is and how does it actually work. In my personal opinion, it is more important to understand how frameworks work deep inside (spoiler: nothing complicated in there actually), rather than start to use a numerous number of traits and operators meanwhile shooting in your leg.
+There are a lot of articles about Reactive Programming and different implementations on the internet. However, most of them about practical usage and only a few about what this reactive programming is and how does it actually work. In my personal opinion, it is more important to understand how frameworks work deep inside (spoiler: nothing complicated in there actually), rather than to start to use a numerous number of traits and operators meanwhile shooting in your leg.
 
 So, what Reactive programming is?
 
@@ -20,7 +20,7 @@ Reactive programming is an idea from the late 90s that inspired Erik Meijer, a c
 
 I don't want to make one definition of what reactive programming is. I would go to the same complication from Wikipedia. I think it's better to compare imperative and reactive approaches.
 
-With an imperative approach, a developer can expect that the code instructions will execute incrementally, one by one, one at a time, in order as you have written them.
+With an imperative approach, a developer can expect that the code instructions will be executed incrementally, one by one, one at a time, in order as you have written them.
 
 The reactive approach is not just a way to handle asynchronous code it's a way to stop to think about threads and start to think about sequences. It allows you to treat streams of asynchronous events with the same sort of simple, composable operations that you use for collections of data items like arrays. You think about how your system `reacts` to the new information. In simple words our system always ready to handle new information and technically doesn't even bother by order of calls in a program.
 
@@ -65,11 +65,11 @@ public final class BehaviorSubject<Element> {
 
 ![long_neck](images/long_neck.png)
 
-This even partly example looks not easy at all... Ok implementation of `RxSwift` not so simple. But let me explain myself. `RxSwift` is an advanced, highly optimized framework with wide functionality. To understand the principles of reactive world this framework doesn't fit. So, what we going to do? We going to write our own reactive solution from scratch. To do this, firstly we need to understand which parts this library consists of.
+This even partly example looks not easy at all... Ok implementation of `RxSwift` not so simple. But let me explain myself. `RxSwift` is an advanced, highly optimized framework with wide functionality. To understand the principles of the reactive world this framework doesn't fit. So, what are we going to do? We going to write our own reactive solution from scratch. To do this, firstly we need to understand which parts this library consists of.
 
 ## The tale of two friends
 
-Let me answer again on the question: What reactive programming is? Reactive programming is a friendship of two design patterns: `Iterator` and `Observer`. Let's make a quick reminder how these patterns work.
+Let me answer again on the question: What reactive programming is? Reactive programming is a friendship of two design patterns: `Iterator` and `Observer`. Let's make a quick reminder of how these patterns work.
 
 `Iterator` is a behavioral design pattern that lets you traverse elements of a collection without exposing its underlying representation (list, stack, tree, etc.). You can read more by this [link](https://refactoring.guru/design-patterns/iterator).
 
@@ -79,7 +79,7 @@ How these two fellas work together? In easy words, you use `Observer` pattern to
 
 **Iterator**
 
-Let's start from the begining. From `Iterator` pattern.
+Let's start from the begining. From the `Iterator` pattern.
 
 Here's a simple sequence of integers:
 ```swift
@@ -97,7 +97,7 @@ while let item = iterator.next() {
 // 1 2 3 4 5
 ```
   
-However, I think that everybody would call this method of iteration via sequence a little bit weird. Let's do the proper one:
+However, I think that everybody would call this way of iteration via sequence a little bit weird. Let's do the proper one:
 ```swift
 sequence.forEach { item in
     print(item)
@@ -106,7 +106,7 @@ sequence.forEach { item in
 // 1 2 3 4 5
 ```
 
-Ok, now it looks more natural at least I hope so. I used `forEach` method on purpose. `forEach` has this signature `func forEach(_ body: (Element) -> Void)`. It's a function which take a function(handler) as an argument and perform this handler over the sequence. Let's try to build `forEach` by ourself.
+Ok, now it looks more natural at least I hope so. I used `forEach` method on purpose. `forEach` has this signature `func forEach(_ body: (Element) -> Void)`. It's a function which takes a function(handler) as an argument and performs this handler over the sequence. Let's try to build `forEach` by ourselves.
 
 ```swift
 extension Array {
@@ -162,13 +162,13 @@ sequence.forEach(on: queue, body: handle)
 
 **Observer**
 
-Ok, I went so far and did some strange custom `forEach` for Array. What is this for? We'll know about this a little bit latter but now let's move to `Observer`.
+Ok, I went so far and did some strange custom `forEach` for Array. What is this for? We'll know about this a little bit later but now let's move to `Observer`.
 
 There are many terms used to describe this model of asynchronous programming and design. This article will use the following terms: an `Observer` and `Observable`. An `Observer` subscribes to an `Observable` and `Observable` emits items or sends notifications to its observers by calling the observers’ methods.
 
-In other words: `Observable` is a stream with data itself and `Observer` is a cunsomer of this stream.
+In other words: `Observable` is a stream with data itself and `Observer` is a consumer of this stream.
 
-Let's start with `Observer`. As I said it's a cunsomer of data stream, which can do something around this data. Let me translate, it's a class with a function inside, which calls when new data arrives:
+Let's start with the `Observer`. As I said it's a consumer of a data stream, which can do something around this data. Let me translate, it's a class with a function inside, which calls when new data arrive. Let’s implement this class.:
 
 ```swift
 class Observer<Element> {
@@ -185,7 +185,7 @@ class Observer<Element> {
 }
 ```
 
-`Observable` it's a data itself. Let's make it simple for the first iteration.
+And now let’s move to `Observable`. `Observable` it's a data itself. Let's make it simple for the first iteration.
 
 ```swift
 class Observable<Element> {
@@ -198,7 +198,7 @@ class Observable<Element> {
 }
 ```
 
-The most interesting part that `Observable` should allow to `subscribe` of consumer of this data. And via changing of this data in `Observable` `Observer` neads to know about this changes.
+The most interesting part that `Observable` should allow to `subscribe` of a consumer of this data. And via changing of this data in `Observable` `Observer` needs to know about these changes.
 
 ```swift
 class Observable<Element> {
@@ -236,9 +236,9 @@ for i in 1...5 {
 
 // 1, 2, 3, 4, 5
 ```
-And it works! But hold on for a second let's add some modifications, before we go further.
+And it works! But hold on for a second let's add some modifications before we go further.
 
-Maybe you've already mentioned, that our `Observable` stores all input `Observers` via subscription, which is not so great. Let's make this dependency `weak`. However, swift doesn't support weak array for now and maybe forever, that's why we need to handle this situation otherwise. Let's implement the class wrapper with weak referance in it.
+Maybe you've already mentioned, that our `Observable` stores all input `Observers` via subscription, which is not so great. Let's make this dependency `weak`. However, Swift doesn't support weak array for now and maybe forever, that's why we need to handle this situation otherwise. Let's implement the class wrapper with weak reference in it.
 
 ```swift
 class WeakRef<T> where T: AnyObject {
@@ -251,7 +251,7 @@ class WeakRef<T> where T: AnyObject {
 }
 ```
 
-As a result you can see a generic object, which could hold other objects weakly. Now let's make some improvements to `Observable`.
+As a result, you can see a generic object, which could hold other objects weakly. Now let's make some improvements to `Observable`.
 
 ```swift
 class Observable<Element> {
@@ -307,7 +307,7 @@ first:   5
 */
 ```
 
-As you can see, the second `Obsesrver` was destroyed after `2` which proves workability of our code. However, I think creating `Observer` object by hand all the time could be anoyning, so let's improve `Observable` to consume a closure not an object. 
+As you can see, the second `Observer` was destroyed after `2` which proves the workability of the code. However, I think creating an `Observer` object by hand all the time could be annoying, so let's improve `Observable` to consume a closure, not an object. 
 
 ```swift
 class Observable<Element> {
@@ -343,7 +343,9 @@ for i in 1...5 {
 // 1, 2, 3, 4, 5
 ```
 
-For my taste usage is more clear now, however it's possible to use both `subscribe` functions. Let's do some asynchronous stress test for our `Observable`.
+For my taste usage is more clear now, however it's possible to use both `subscribe` functions.
+
+For now our tiny reactive framework looks finished, but not exactly. Let's do some asynchronous stress test for the `Observable`.
 
 ```swift
 let observable = Observable<Int>(value: 0)
@@ -363,7 +365,7 @@ for i in 6...9 {
     }
 }
 ```
-In this case we should receive numbers from 1 to 9 in a random order, because changes runned in different asynchronous queue. For my case it was like this 
+In this case, we should receive numbers from 1 to 9 in random order because changes run in the different asynchronous queues. For my case, it was like this 
 
 ```swift
 /*
@@ -379,7 +381,7 @@ In this case we should receive numbers from 1 to 9 in a random order, because ch
 */
 ```
 
-As you can see it's not that was expected. A race condition happend and it should be fixed. The solution is easy, let's add some thread syncronisation. There are several options how to achive this, but I'll use method with dispatch barrier. Here's the solution.
+As you can see it's not that was expected. A race condition happened and it should be fixed. The solution is easy, let's add some thread synchronization. There are several options on how to achieve this, but I'll use a method with a dispatch barrier. Here's the solution.
 
 ```swift
 class Observable<Element> {
@@ -427,9 +429,9 @@ The same test as previously gave me this result:
 9
 */
 ```
-This time it's even in the right order, but it's not granted. Now our reactive framework has thread syncronisation.
+This time it's even in the right order, but be aware that it's not granted. Now our reactive framework has thread synchronization.
 
-Let's move futher and there's another difference between vanila `Observer` pattern and most of the reactive frameworks. Usually, as an `Element` from `Observable` you consume not just an `Element`, but some kind of `Event` structure, which looks like this.
+Let's move further and there's another difference between vanilla `Observer` pattern and most of the reactive frameworks. Usually, as an `Element` from `Observable`, you manipulate not just an `Element`, but some kind of `Event` enumeration, which looks like this.
 
 ```swift
 enum Event<Element> {
@@ -439,11 +441,11 @@ enum Event<Element> {
 }
 ```
 
-Kinda handy solution, because you can handle situations when your sequence completed or received an error. I don't want to spend time for adopting this practice right now, I think it doesn't metter for concept understanding.
+It’s a kinda handy solution, because you can handle situations when your sequence completed or received an error. I don't want to spend time for adopting this practice right now, I think it doesn't matter for concept understanding.
 
 **Let's compose `Observer` and `Iterator`**
 
-One of the killer feartures for reactive programming is possibility to treat your `Observable` `sequence` as a `Sequence` I think everybody knows this handy functions like `map`, `flatMap`, `reduce` and so on. As an example, let's try to add to our `Observable` the `map` function. But firstly let's remember how does it work with a simple array.
+One of the killer features for reactive programming is possibility to treat your `Observable` `sequence` as a `Sequence` I think everybody knows this handy functions like `map`, `flatMap`, `reduce` and so on. As an example, let's try to add to our `Observable` the `map` function. But firstly let's remember how does it work with a simple array.
 
 ```swift
 let sequence = [1, 2, 3, 4, 5]
@@ -512,11 +514,11 @@ Yeah, you can mention that I've cheated a little bit.
 
 ![Mr_Burns.png](images/Mr_Burns.png)
 
-True `map` function would have this structure `func map<T>(_ transform: @escaping (Element) -> T) -> Observable<T>`, but for a sake of simplicity of this article I just added this `func map(_ transform: @escaping (Element) -> Element) -> Observable<Element>`. I hope you can forgive me and understand the point. 
+True `map` function would have this structure `func map<T>(_ transform: @escaping (Element) -> T) -> Observable<T>`, but for a sake of simplicity of this article I just added this `func map(_ transform: @escaping (Element) -> Element) -> Observable<Element>`. I hope you could forgive me and understand the point. 
 
-Actually, we've done with our own reactive framework, congratulations to everybody who followed untill the end. It's super simplified but it works. Gist with a last iteration of this article you can find [here](https://gist.github.com/Atimca/51c83f4c9161fc36bed340b02e605d09).
+Actually, we've done for now with our own reactive framework, congratulations to everybody who followed untill the end. It's super simplified but it works. Gist with the last iteration of this article you can find [here](https://gist.github.com/Atimca/51c83f4c9161fc36bed340b02e605d09).
 
-I hope at least for now, reactive programming hasn't looked scary anymore. However, I still hear time to time from people, that reactive way could lead us to enumorous number of sequencies flying around the project and it's very easy to shoot in your leg with this approach. I won't fight against this, and you can easily google bad style of dooing reactive. I don't want to make any cliffhangers, but I hope to show you a way, how to treat reactive approach in the next chapters.
+I hope at least for now, reactive programming hasn't looked scary anymore. However, I hear all the time from people, that reactive way could lead us to enumorous number of sequences flying around the project and it's very easy to shoot in your leg with this approach. I won't fight against this, and you can easily google bad style of doing reactive. I don't want to make any cliffhangers, but I hope to show you a way, how to treat reactive approach in the next chapters.
 
 ## Where to go after
 
